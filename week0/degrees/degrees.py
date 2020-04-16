@@ -5,12 +5,23 @@ from util import Node, StackFrontier, QueueFrontier
 
 # Maps names to a set of corresponding person_ids
 names = {}
+# names[row["name"].lower()] = {row["id"]}
 
 # Maps person_ids to a dictionary of: name, birth, movies (a set of movie_ids)
 people = {}
+# people[row["id"]] = {
+#     "name": row["name"],
+#     "birth": row["birth"],
+#     "movies": set()
+# }
 
 # Maps movie_ids to a dictionary of: title, year, stars (a set of person_ids)
 movies = {}
+# movies[row["id"]] = {
+#     "title": row["title"],
+#     "year": row["year"],
+#     "stars": set()
+# }
 
 
 def load_data(directory):
@@ -90,11 +101,57 @@ def shortest_path(source, target):
     that connect the source to the target.
 
     If no possible path, returns None.
+
+    Args:
+        source: str of id
+        target: str of id
     """
 
-    # TODO
-    raise NotImplementedError
+    """
+    1. get all neighbors of source
+    2. for each neighbor, check their neighbors
+    3. repeat until target is found
+    """
 
+    queue = QueueFrontier()
+    explored = set()
+
+    neighbors = neighbors_for_person(source)
+    # (movie_id, person_id)
+
+    for neighbor in neighbors:
+        node = Node(state=neighbor[1], action=neighbor[0], parent=source)
+
+        if node not in explored:
+            explored.add(node)
+            queue.add(node)
+
+        if node.state == target:
+            # target found
+            return [neighbor]
+
+
+    while queue:
+        node = queue.remove()
+        neighbors = neighbors_for_person(node.state)
+
+        for neighbor in neighbors:
+            new_node = Node(state=neighbor[1], action=neighbor[0], parent=node)
+
+            if new_node not in explored:
+                explored.add(new_node)
+                queue.add(new_node)
+
+            if new_node.state == target:
+                # target found
+                degrees = []
+                while type(new_node.parent) != str:
+                    degrees.insert(0, (new_node.action, new_node.state))
+                    new_node = new_node.parent
+
+                import pdb; pdb.set_trace()
+                return degrees
+    return None
 
 def person_id_for_name(name):
     """
