@@ -149,9 +149,9 @@ def shortest_path(source, target):
                     degrees.insert(0, (new_node.action, new_node.state))
                     new_node = new_node.parent
 
-                import pdb; pdb.set_trace()
                 return degrees
     return None
+
 
 def person_id_for_name(name):
     """
